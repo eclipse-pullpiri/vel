@@ -1,0 +1,33 @@
+@startuml
+title S-CORE Integration View with Vehicle Evidence Layer
+
+package "S-CORE" {
+  [S-CORE Modules]
+  [S-CORE Communication]
+  [S-CORE Logging]
+  [S-CORE Persistency]
+}
+
+package "Vehicle Evidence Layer" {
+  [Source Collectors]
+  [Evidence Processing]
+  [Evidence Persistence]
+  [Vehicle Evidence Publisher]
+  [VEL Health Publisher]
+  [Collection and Audit Logging]
+}
+
+[S-CORE Modules] --> [Source Collectors] : exposed module states
+[Source Collectors] --> [Evidence Processing] : collected records
+[Evidence Processing] ..> [S-CORE Communication] : applicable communication profile
+[Evidence Processing] ..> [S-CORE Persistency] : configured evidence persistence
+[Evidence Processing] --> [Evidence Persistence] : optional storage
+[Evidence Processing] --> [Vehicle Evidence Publisher] : normalized evidence
+[Evidence Processing] --> [VEL Health Publisher] : collection status
+[Collection and Audit Logging] --> [S-CORE Logging] : collection/audit logs
+
+note bottom of [Vehicle Evidence Publisher]
+Vehicle Evidence Layer exposes evidence only.
+No control or final OEM decisions.
+end note
+@enduml
