@@ -1,0 +1,3 @@
+Sphinx>=8,<9
+myst-parser>=4,<5
+sphinx-needs>=6,<7
