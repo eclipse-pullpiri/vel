@@ -1,0 +1,61 @@
+apiVersion: score.dev/v1alpha1
+kind: EvidenceNormalizationRule
+metadata:
+  name: vendor-a-npu-to-score-evidence
+  version: 3.1.0
+spec:
+  compatibleInputSchemas:
+    - {name: vendor-a-npu-status, versionRange: ">=1.2.0 <2.0.0"}
+  outputSchema: {name: score-normalized-evidence, version: 1.0.0}
+  defaults:
+    evidenceDomain: accelerator
+    quality: {validity: valid, freshness: current, completeness: complete, mappingQuality: exact}
+  commonMappings:
+    - {sourcePath: $.source_id, targetPath: $.identity.sourceId, required: true}
+    - {sourcePath: $.workload_id, targetPath: $.identity.workloadId, required: true}
+    - {sourcePath: $.execution_id, targetPath: $.identity.executionInstanceId, required: true}
+    - {sourcePath: $.resource_id, targetPath: $.identity.resourceId, required: true}
+    - {sourcePath: $.execution_id, targetPath: $.identity.correlationId, required: true}
+    - {sourcePath: $.message_id, targetPath: $.traceability.sourceMessageId, required: true}
+    - sourcePath: $.timestamp_ns
+      targetPath: $.time.eventTimestampNs
+      required: true
+      transform: {operation: timestamp, sourceUnit: ns, clockDomain: monotonic}
+  evidenceMappings:
+    - id: inference-latency
+      when: {fieldExists: $.inference_latency_us}
+      output: {evidenceType: workload.execution.latency}
+      value:
+        sourcePath: $.inference_latency_us
+        targetPath: $.observation.value
+        transform: {operation: scale, factor: 0.001}
+      constants:
+        - {targetPath: $.observation.unit, value: ms}
+    - id: npu-device-state
+      when: {fieldExists: $.device_state}
+      output: {evidenceType: resource.operational.state}
+      value:
+        sourcePath: $.device_state
+        targetPath: $.observation.state
+        transform:
+          operation: enumMap
+          values: {0: available, 1: busy, 2: degraded, 3: unavailable}
+          unmappedValue: unknown
+    - id: vendor-error
+      when: {fieldExists: $.vendor_error_code}
+      value:
+        sourcePath: $.vendor_error_code
+        targetPath: $.observation.originalValue
+      lookup:
+        "0xA17": {evidenceType: accelerator.execution.timeout, normalizedClass: execution-timeout}
+        "0xB03": {evidenceType: accelerator.memory.failure, normalizedClass: device-memory-failure}
+      onUnmapped:
+        evidenceType: accelerator.vendor-event
+        normalizedClass: unmapped
+        mappingQuality: unmapped
+        preserveOriginalValue: true
+  failureHandling:
+    missingRequiredField: {result: reject, emitAdapterDiagnostic: true}
+    invalidValue: {result: emit-invalid-evidence, preserveOriginalValue: true}
+    unmappedEnum: {result: emit-unknown, mappingQuality: unmapped}
+    transformationError: {result: reject, emitAdapterDiagnostic: true}

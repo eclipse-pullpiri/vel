@@ -1,0 +1,28 @@
+apiVersion: score.dev/v1alpha1
+kind: RawEvidenceSchema
+metadata:
+  name: vendor-a-npu-status
+  version: 1.2.0
+spec:
+  owner: runtime-vendor
+  encoding: json
+  messageType: VendorANpuStatus
+  additionalFields: reject
+  fields:
+    - {name: message_id, path: $.message_id, type: string, required: true}
+    - {name: source_id, path: $.source_id, type: string, required: true}
+    - {name: workload_id, path: $.workload_id, type: string, required: true}
+    - {name: execution_id, path: $.execution_id, type: string, required: true}
+    - {name: resource_id, path: $.resource_id, type: string, required: true}
+    - {name: timestamp_ns, path: $.timestamp_ns, type: uint64, required: true}
+    - name: inference_latency_us
+      path: $.inference_latency_us
+      type: uint32
+      required: false
+      range: {minimum: 0, maximum: 10000000}
+    - name: device_state
+      path: $.device_state
+      type: uint8
+      required: true
+      allowedValues: [0, 1, 2, 3]
+    - {name: vendor_error_code, path: $.vendor_error_code, type: string, required: false}

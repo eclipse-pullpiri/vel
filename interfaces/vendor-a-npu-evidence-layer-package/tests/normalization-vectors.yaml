@@ -1,0 +1,51 @@
+apiVersion: score.dev/v1alpha1
+kind: NormalizationTestSuite
+metadata:
+  name: vendor-a-npu-mapping-tests
+  mappingName: vendor-a-npu-to-score-evidence
+  mappingVersion: 3.1.0
+tests:
+  - name: nominal-message-generates-three-records
+    input:
+      message_id: npu-status-19382
+      source_id: npu-runtime-0
+      workload_id: perception-front
+      execution_id: exec-8042
+      resource_id: npu-0
+      timestamp_ns: 1984217732000
+      inference_latency_us: 38400
+      device_state: 2
+      vendor_error_code: "0xA17"
+    expect:
+      recordCount: 3
+      evidence:
+        - {evidenceType: workload.execution.latency, value: 38.4, unit: ms}
+        - {evidenceType: resource.operational.state, state: degraded}
+        - {evidenceType: accelerator.execution.timeout, normalizedClass: execution-timeout, originalValue: "0xA17"}
+  - name: unknown-error-is-preserved
+    input:
+      message_id: npu-status-19383
+      source_id: npu-runtime-0
+      workload_id: perception-front
+      execution_id: exec-8043
+      resource_id: npu-0
+      timestamp_ns: 1984217733000
+      device_state: 0
+      vendor_error_code: "0xFFFF"
+    expect:
+      contains:
+        evidenceType: accelerator.vendor-event
+        normalizedClass: unmapped
+        originalValue: "0xFFFF"
+        mappingQuality: unmapped
+  - name: missing-required-field-is-rejected
+    input:
+      message_id: npu-status-19384
+      source_id: npu-runtime-0
+      execution_id: exec-8044
+      resource_id: npu-0
+      timestamp_ns: 1984217734000
+      device_state: 1
+    expect:
+      rejected: true
+      adapterDiagnostic: MANDATORY_FIELD_MISSING

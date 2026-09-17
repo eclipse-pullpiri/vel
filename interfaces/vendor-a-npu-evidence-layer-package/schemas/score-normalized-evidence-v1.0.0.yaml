@@ -1,0 +1,33 @@
+apiVersion: score.dev/v1alpha1
+kind: NormalizedEvidenceSchema
+metadata:
+  name: score-normalized-evidence
+  version: 1.0.0
+spec:
+  owner: score
+  encoding: json
+  requiredSections: [header, identity, observation, time, quality, traceability]
+  fields:
+    - {path: $.header.evidenceId, type: string, required: true}
+    - {path: $.header.schemaVersion, type: string, required: true}
+    - {path: $.header.evidenceType, type: string, required: true}
+    - {path: $.header.evidenceDomain, type: string, required: true}
+    - {path: $.identity.sourceId, type: string, required: true}
+    - {path: $.identity.workloadId, type: string, required: true}
+    - {path: $.identity.executionInstanceId, type: string, required: true}
+    - {path: $.identity.resourceId, type: string, required: true}
+    - {path: $.identity.correlationId, type: string, required: true}
+    - {path: $.observation.value, type: number, required: false}
+    - {path: $.observation.unit, type: string, required: false}
+    - {path: $.observation.state, type: string, required: false}
+    - {path: $.observation.normalizedClass, type: string, required: false}
+    - {path: $.observation.originalValue, type: string, required: false}
+    - {path: $.time.eventTimestampNs, type: uint64, required: true}
+    - {path: $.time.clockDomain, type: string, required: true}
+    - {path: $.quality.validity, type: enum, values: [valid, invalid, unknown], required: true}
+    - {path: $.quality.freshness, type: enum, values: [current, delayed, stale], required: true}
+    - {path: $.quality.completeness, type: enum, values: [complete, partial, missing], required: true}
+    - {path: $.quality.mappingQuality, type: enum, values: [exact, approximate, unmapped], required: true}
+    - {path: $.traceability.inputSchemaVersion, type: string, required: true}
+    - {path: $.traceability.normalizationRuleVersion, type: string, required: true}
+    - {path: $.traceability.sourceMessageId, type: string, required: true}
