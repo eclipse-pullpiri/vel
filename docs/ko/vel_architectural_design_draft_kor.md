@@ -61,13 +61,13 @@ VEL은 다음 경계에서만 S-CORE service를 사용한다.
 
 이 연계는 VEL을 coordinator, controller, policy manager 또는 decision-maker로 만들지 않는다.
 
-## 6. 컴포넌트 관계
+## 6. VEL Internal Component Flow
 
-![Vehicle Evidence Layer 컴포넌트 관계](../features/assets/VEL_component_relationship.svg)
+![VEL internal component flow](../features/assets/VEL_internal_component_flow.svg)
 
-[PlantUML 원본](../features/diagrams/VEL_component_relationship.puml)
+[PlantUML 원본](../features/diagrams/VEL_internal_component_flow.puml)
 
-처리 순서는 다음과 같다.
+이 view는 architecture overview를 반복하지 않고 VEL 내부 processing flow에 집중한다. 각 단계의 data artifact, invalid record의 diagnostic 경로, normalized Vehicle Evidence와 optional persistence, VEL Health 및 operational logging의 분리를 보여준다.
 
 ```text
 source data

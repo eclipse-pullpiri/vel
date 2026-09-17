@@ -61,13 +61,13 @@ VEL uses S-CORE services only at their applicable boundaries:
 
 These integrations do not turn VEL into a coordinator, controller, policy manager, or decision-maker.
 
-## 6. Component Relationships
+## 6. VEL Internal Component Flow
 
-![Vehicle Evidence Layer component relationships](../features/assets/VEL_component_relationship.svg)
+![VEL internal component flow](../features/assets/VEL_internal_component_flow.svg)
 
-[PlantUML source](../features/diagrams/VEL_component_relationship.puml)
+[PlantUML source](../features/diagrams/VEL_internal_component_flow.puml)
 
-The relationship view makes the processing sequence explicit:
+This view focuses on the internal processing flow rather than repeating the architecture overview. It shows the data artifacts at each stage, the invalid-record diagnostic path, and the separation between normalized Vehicle Evidence, optional persistence, VEL Health, and operational logging.
 
 ```text
 source data
