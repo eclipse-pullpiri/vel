@@ -1,0 +1,40 @@
+name: Development Task
+description: Development task to be implemented
+title: "[TASK] "
+labels: ["type:task", "status:todo"]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: 🔗 Related Requirement
+      description: Parent requirement issue number
+      placeholder: "Relates to #"
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 Task Description
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: 📋 Checklist
+      placeholder: |
+        - [ ] Item 1
+        - [ ] Item 2
+    validations:
+      required: false
+  - type: textarea
+    id: implementation-guidelines
+    attributes:
+      label: 📐 Implementation Guidelines
+    validations:
+      required: false
+  - type: textarea
+    id: testing-method
+    attributes:
+      label: 🧪 Testing Method
+    validations:
+      required: false
