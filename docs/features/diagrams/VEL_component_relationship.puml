@@ -1,24 +1,38 @@
 @startuml
-title VEL Component Relationships
+title Vehicle Evidence Layer Component Relationships
 
-component "NodeAgent" as nodeagent
 component "Source Collectors" as collectors
 component "Interface Configuration Package" as package
 component "Input Interface Definitions" as input
 component "Output Evidence Definitions" as output
 component "Normalization Mappings" as mappings
-component "Vehicle Evidence Output" as evidence_output
+component "Schema Validator" as validator
+component "Normalization Processor" as normalizer
+component "Quality Evaluator" as quality
+component "Traceability Enricher" as traceability
+component "Evidence Persistence" as persistence
+component "Vehicle Evidence Publisher" as publisher
+component "VEL Health Publisher" as health
+component "Collection and Audit Logging" as logging
 component "S-CORE Communication" as communication
-component "S-CORE Logging" as logging
+component "S-CORE Logging" as score_logging
 
 package --> input
 package --> output
 package --> mappings
 input --> collectors : source shape
-collectors --> nodeagent : raw records
-mappings --> nodeagent : mapping rules
-nodeagent --> evidence_output : normalized evidence
-nodeagent --> logging : audit logs
-nodeagent ..> communication : when applicable
-output --> evidence_output : output contract
+collectors --> validator : raw records
+validator --> normalizer : validated records
+mappings --> normalizer : mapping rules
+normalizer --> quality : normalized records
+quality --> traceability : quality metadata
+traceability --> persistence : optional storage
+traceability --> publisher : normalized evidence
+traceability --> health : collection status
+output --> publisher : output contract
+collectors --> logging : collection logs
+validator --> logging : validation logs
+normalizer --> logging : normalization logs
+logging --> score_logging : audit logs
+normalizer ..> communication : when applicable
 @enduml

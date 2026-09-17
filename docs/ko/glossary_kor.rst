@@ -8,6 +8,11 @@ Vehicle Evidence
 
 VEL이 수집한 source 데이터로부터 생성하는 정규화되고 추적 가능한 출력. Vehicle Evidence에는 관측값 또는 상태, source identity, observation time, (제공되는 경우) correlation identifier가 포함된다.
 
+Vehicle Evidence Layer (VEL)
+-----------------------------
+
+제품의 공식 명칭이다. VEL은 지정된 consumer에게 Vehicle Evidence를 수집, 정규화 및 노출하는 Evidence Layer다.
+
 Evidence Layer
 ---------------
 
@@ -63,10 +68,10 @@ S-CORE Module
 
 배포 환경이 노출하는 S-CORE API를 통해 VEL이 source로서 상태를 관측하고 수집할 수 있는 S-CORE 플랫폼의 모듈.
 
-NodeAgent
-----------
+Evidence Runtime
+-----------------
 
-VEL의 collector host로 재사용되는 Pullpiri 유래 컴포넌트. Source Collector를 호스팅하고 normalized Vehicle Evidence를 발행하며, lifecycle, process, container, hardware action은 실행하지 않는다.
+VEL 컴포넌트를 호스팅하는 배포 환경별 host다(예: Pullpiri의 NodeAgent). Source Collector, Evidence Processing 및 publication 컴포넌트를 호스팅할 수 있지만 VEL product boundary 자체는 아니며 lifecycle, process, container, hardware action을 실행하지 않는다.
 
 Baseline
 --------

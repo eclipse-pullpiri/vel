@@ -1,138 +1,87 @@
-# VEL 개략설계 초안
+# Vehicle Evidence Layer 개략설계 초안
 
-## 1. 범위 결정
+## 1. 범위와 설계 방향
 
-VEL은 S-CORE 기반 차량 시스템용 Vehicle Evidence Layer다. normalized Vehicle Evidence interface를 제공하는 독립적인 open-source 구현으로 개발한다.
+Vehicle Evidence Layer(VEL)은 구성된 runtime, hardware 및 S-CORE 모듈 상태 정보를 수집하고, 이기종 source 데이터를 정규화하여 지정된 consumer에게 Vehicle Evidence를 노출한다.
 
-VEL은 raw metric, runtime state, event, fault, execution context, input interface definition, output evidence definition 및 normalization mapping을 입력받아 정규화된 Vehicle Evidence, evidence quality, VEL health를 external interface로 출력한다.
+VEL은 evidence producer다. VEL은 multi-node coordination, boot sequence, workload lifecycle 실행, process/container 제어, hardware 제어, policy 결정 및 OEM 최종 차량 의사결정을 수행하지 않는다.
 
-VEL은 multi-node를 조정하지 않는다. multi-node boot sequence, app launch coordination, network configuration 및 OEM 차량 의사결정은 외부 책임으로 둔다.
+배포 방식과 기능 경계를 구분한다. 하나의 process가 여러 VEL 컴포넌트를 호스팅할 수 있지만, 설계에서는 각 기능 경계를 명시적으로 유지한다.
 
-## 2. 설계 방향
+## 2. 아키텍처 개요
 
-VEL은 접근 가능한 runtime/HW metric, S-CORE state 및 구성된 execution context를 수집한다. VEL은 quality와 VEL health metadata가 포함된 normalized Vehicle Evidence를 출력한다.
+![Vehicle Evidence Layer 아키텍처](../features/assets/VEL_architecture.svg)
 
-VEL은 metric 수집에 file, command, 지원 OS interface를 사용한다. common Evidence Layer에서 platform-specific collector를 분리한다. VEL은 evidence producer만 담당하며 multi-node coordination을 수행하지 않는다.
+[PlantUML 원본](../features/diagrams/VEL_architecture.puml)
 
-Vehicle Evidence field name, source input shape, source-to-evidence mapping은 configuration으로 분리하여 common Evidence Layer 변경 없이 이기종 source를 통일할 수 있게 한다.
+Vehicle Evidence Layer는 다음 다섯 기능 영역으로 구성된다.
 
-## 3. 기존 모듈 재사용 및 변경
+- **Evidence Ingestion**: Source Collector가 file, command, 지원 OS interface 또는 S-CORE API를 통해 구성된 runtime, hardware 및 S-CORE state를 읽는다.
+- **Evidence Processing**: Schema Validator가 source record를 검증하고, Normalization Processor가 mapping을 적용하며, Quality Evaluator가 evidence quality를 부여하고, Traceability Enricher가 source identity, observation time 및 제공된 correlation 정보를 추가한다.
+- **Evidence Management**: 배포 환경에서 persistence를 구성한 경우에만 정규화된 evidence를 저장한다.
+- **Evidence Publication**: Vehicle Evidence Publisher가 normalized Vehicle Evidence contract를 노출하고, VEL Health Publisher가 VEL 수집 pipeline의 health를 노출한다.
+- **Observability**: Collection and Audit Logging이 수집, 검증, 정규화 및 발행 event를 기록하며 Vehicle Evidence contract와는 분리된다.
 
-| Pullpiri 모듈 | VEL 역할 | 변경 |
-| --- | --- | --- |
-| NodeAgent | collector host, source collection, evidence publication | 확장; action 실행 금지 |
-| MonitoringServer | 선택적 로컬 metric 수집 utility 및 monitoring convention | 선택적 재사용; 중앙 multi-node aggregator로 사용하지 않음 |
-| SettingsService | evidence-query endpoint 후보 기반 | 선택적 재사용 |
-| common::spec | evidence contract 및 schema 정의 기반 | configuration-driven interface definition으로 확장 또는 대체 |
-| logservice, common::logd | logging path | S-CORE Logging으로 대체 |
-| rocksdbservice, common::etcd | configured persistence 시 evidence 저장 경로 | S-CORE Persistency로 대체 |
-| ActionController | 없음 | VEL 실행 경로에서 제외 |
-| FilterGateway, StateManager, PolicyManager | 초기 VEL 범위에서 없음 | coordination/policy 책임은 외부로 제외 |
+## 3. Configuration 경계
 
-source collector는 NodeAgent 기반 VEL process 내부에서 실행한다. input definition, output definition, normalization mapping은 별도 배포 service가 아니라 configuration으로 load한다.
+Configuration은 source와 evidence contract를 정의한다.
+
+- Input Interface Definition은 source field, type 및 requiredness를 정의한다.
+- Normalization Mapping은 source-to-evidence field mapping, unit conversion, state conversion 및 quality rule을 정의한다.
+- Output Evidence Definition은 VEL이 consumer에게 노출하는 normalized Vehicle Evidence field를 정의한다.
+
+이를 통해 새로운 source를 추가할 때 common evidence processing behavior를 변경하지 않고 configuration과 platform-specific collector를 확장할 수 있다.
 
 ## 4. 컴포넌트 책임
 
-| 컴포넌트 | 주요 기능 | 업무 통신 대상 | 연계 인프라 | 배포 |
-| --- | --- | --- | --- | --- |
-| NodeAgent | VEL collection host, Vehicle Evidence 정규화/발행 | S-CORE module, 지정된 evidence consumer | 필요 시 S-CORE Communication/lola | VEL 배포 단위 |
-| Source Collector | configured input definition에 따라 easy metric 및 S-CORE API state 조회 | OS, Runtime, S-CORE Modules | file, command, 지원 API | VEL 내부 |
-| Interface Configuration Package | input definition, output definition, normalization mapping, verification vector 연결 | NodeAgent, Source Collector | 배포 환경의 configuration mechanism | VEL 내부 |
-| Input Interface Definition | source input field, type, requiredness 정의 | Source Collector | configuration package | VEL 내부 |
-| Output Evidence Definition | normalized Vehicle Evidence output field 정의 | NodeAgent, Vehicle Evidence Output | configuration package | VEL 내부 |
-| Normalization Mapping | source-to-evidence mapping, unit conversion, quality rule 정의 | NodeAgent | configuration package | VEL 내부 |
-| Vehicle Evidence Output | evidence, quality, VEL health, collection status 노출 | 지정된 evidence consumer | 배포 환경의 interface mechanism | VEL 내부 |
-| S-CORE Modules | 배포 환경에서 노출되는 module state 제공 | NodeAgent | S-CORE API | 외부 dependency |
-| S-CORE Logging | VEL audit/collection log 수신 | NodeAgent | S-CORE Logging | 외부 dependency |
+| 컴포넌트 | 책임 | 경계 |
+| --- | --- | --- |
+| Source Collector | 구성된 source data와 source context를 읽는다 | platform-specific 구현이며 normalization policy를 결정하지 않는다 |
+| Schema Validator | input definition에 따라 source record를 검증한다 | 잘못된 source data를 reject하거나 진단한다 |
+| Normalization Processor | source representation을 Vehicle Evidence representation으로 변환한다 | configuration을 적용하며 OEM 결정을 내리지 않는다 |
+| Quality Evaluator | validity, freshness, completeness 및 mapping quality를 부여한다 | evidence quality를 설명하며 차량 동작을 해석하지 않는다 |
+| Traceability Enricher | source identity, observation time 및 제공된 correlation 정보를 추가한다 | observation provenance를 보존한다 |
+| Evidence Persistence | 구성된 경우 normalized evidence를 저장한다 | 선택적 deployment capability다 |
+| Vehicle Evidence Publisher | 구성된 output interface를 통해 normalized Vehicle Evidence를 노출한다 | evidence publication만 담당한다 |
+| VEL Health Publisher | collection 및 processing health를 노출한다 | VEL operational status만 담당한다 |
+| Collection and Audit Logging | operational 및 audit event를 기록한다 | evidence content와 분리된다 |
 
-## 5. 컴포넌트 다이어그램 (PlantUML)
+## 5. S-CORE 연계
 
-```plantuml
-@startuml
-title VEL Evidence Layer
+![S-CORE integration view with Vehicle Evidence Layer](../features/assets/SCORE_architecture_with_VEL.svg)
 
-package "Execution Substrate / Vehicle Runtime" {
-  [OS / Middleware]
-  [HW / Accessible Metrics]
-  [S-CORE Modules]
-}
+[PlantUML 원본](../features/diagrams/SCORE_architecture_with_VEL.puml)
 
-package "VEL Instance" {
-  [NodeAgent]
-  [Source Collectors]
-  [Interface Configuration Package]
-  [Input Interface Definitions]
-  [Output Evidence Definitions]
-  [Normalization Mappings]
-  [Vehicle Evidence Output]
-}
+VEL은 다음 경계에서만 S-CORE service를 사용한다.
 
-package "S-CORE Existing Modules" {
-  [S-CORE Communication]
-  [S-CORE Logging]
-}
+- S-CORE Modules는 배포 환경이 노출한 API를 통해 관측 가능한 module state를 제공한다.
+- 적용 가능한 communication profile이 요구하는 경우 S-CORE Communication을 사용할 수 있다.
+- S-CORE Logging은 VEL collection 및 audit log를 수신한다.
+- 구성된 evidence persistence가 필요한 경우 S-CORE Persistency를 사용할 수 있다.
 
-package "External Consumer" {
-  [Designated Evidence Consumer]
-}
+이 연계는 VEL을 coordinator, controller, policy manager 또는 decision-maker로 만들지 않는다.
 
-[OS / Middleware] --> [Source Collectors] : process/runtime states
-[HW / Accessible Metrics] --> [Source Collectors] : files/commands/OS interfaces
-[S-CORE Modules] --> [Source Collectors] : module state APIs
-[Interface Configuration Package] --> [Input Interface Definitions] : input schema refs
-[Interface Configuration Package] --> [Output Evidence Definitions] : output schema refs
-[Interface Configuration Package] --> [Normalization Mappings] : mapping refs
-[Input Interface Definitions] --> [Source Collectors] : source shape/required fields
-[Normalization Mappings] --> [NodeAgent] : mappings/units/quality rules
-[Output Evidence Definitions] --> [Vehicle Evidence Output] : output evidence contract
-[Source Collectors] --> [NodeAgent] : raw evidence + context
-[NodeAgent] --> [Vehicle Evidence Output] : normalized evidence/quality/VEL health
-[NodeAgent] --> [S-CORE Logging] : audit/collection logs
-[NodeAgent] ..> [S-CORE Communication] : lola when API profile requires it
-[Vehicle Evidence Output] --> [Designated Evidence Consumer] : evidence access
+## 6. 컴포넌트 관계
 
-note right of [NodeAgent]
-No action or multi-node coordination.
-end note
-@enduml
+![Vehicle Evidence Layer 컴포넌트 관계](../features/assets/VEL_component_relationship.svg)
+
+[PlantUML 원본](../features/diagrams/VEL_component_relationship.puml)
+
+처리 순서는 다음과 같다.
+
+```text
+source data
+    -> schema validation
+    -> normalization
+    -> quality evaluation
+    -> traceability enrichment
+    -> persistence and/or publication
 ```
 
-## 6. Evidence Flow (PlantUML)
-
-```plantuml
-@startuml
-title VEL Evidence Layer: Collection and Evidence Exposure
-
-actor "Designated Evidence Consumer" as Consumer
-participant "OS/HW Sources" as Source
-participant "S-CORE Modules" as ScoreModules
-participant "Source Collectors" as Collectors
-participant "Interface Configuration Package" as Config
-participant NodeAgent
-participant "S-CORE Logging" as Logging
-participant "Vehicle Evidence Output" as Output
-
-Source -> Collectors : accessible metrics/runtime states
-ScoreModules -> Collectors : module states
-Config -> Collectors : input interface definitions
-Config -> NodeAgent : normalization mappings
-Collectors -> NodeAgent : raw evidence + source/time context
-NodeAgent -> NodeAgent : normalize units/formats; attach quality/traceability
-Config -> Output : output evidence definitions
-NodeAgent -> Logging : collection and error audit logs
-NodeAgent -> Output : normalized evidence + VEL health
-Consumer -> Output : query/subscribe evidence
-Output --> Consumer : evidence response
-
-note over NodeAgent
-No lifecycle or hardware control.
-No multi-node aggregation or coordination.
-end note
-@enduml
-```
+Logging은 이 흐름을 관찰하고, configuration은 각 처리 단계가 사용하는 contract와 rule을 제공한다.
 
 ## 7. 미결 설계 항목
 
-- 지정된 data-format 이해관계자와 input interface definition, output evidence definition, normalization mapping format 확정
-- 각 배포 환경의 platform-specific collector와 S-CORE API profile 확인
-- normalized evidence persistence 및 특정 external transport가 integration별로 필요한지 결정
+- 담당 data-format 이해관계자와 input interface definition, output evidence definition 및 normalization mapping format 확정
+- 각 배포 환경의 platform-specific collector interface 및 S-CORE API profile 확인
+- integration별 normalized evidence persistence 및 특정 external transport 필요 여부 결정

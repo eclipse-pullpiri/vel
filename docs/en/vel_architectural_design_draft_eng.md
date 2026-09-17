@@ -1,138 +1,87 @@
-# VEL Architectural Design Draft
+# Vehicle Evidence Layer Architectural Design Draft
 
-## 1. Scope Decision
+## 1. Scope and Design Position
 
-VEL is a Vehicle Evidence Layer for S-CORE-based vehicle systems. It provides a normalized Vehicle Evidence interface as an independent open-source implementation.
+Vehicle Evidence Layer (VEL) collects configured runtime, hardware, and S-CORE module state information, normalizes heterogeneous source data, and exposes Vehicle Evidence to designated consumers.
 
-VEL receives raw metrics, runtime states, events, faults, execution context, input interface definitions, output evidence definitions, and normalization mappings. It emits normalized Vehicle Evidence, evidence quality, and VEL health through an external interface.
+VEL is an evidence producer. It does not perform multi-node coordination, boot sequencing, workload lifecycle execution, process or container control, hardware control, policy decisions, or final OEM vehicle decisions.
 
-VEL does not coordinate multiple nodes. Multi-node boot sequencing, application launch coordination, network configuration, and OEM vehicle decisions remain external responsibilities.
+The architecture separates functional responsibilities from deployment. A deployment may host several VEL components in one process, but the functional boundaries remain explicit in the design.
 
-## 2. Design Position
+## 2. Architecture Overview
 
-VEL consumes accessible runtime/HW metrics, S-CORE states, and configured execution context. It produces normalized Vehicle Evidence with quality and VEL health metadata.
+![Vehicle Evidence Layer architecture](../features/assets/VEL_architecture.svg)
 
-VEL uses files, commands, and supported OS interfaces for metric collection. Platform-specific collectors are isolated from the common Evidence Layer. VEL is an evidence producer only; it does not perform multi-node coordination.
+[PlantUML source](../features/diagrams/VEL_architecture.puml)
 
-Vehicle Evidence field names, source input shapes, and source-to-evidence mappings are externalized as configuration so heterogeneous sources can be unified without changing the common Evidence Layer.
+The Vehicle Evidence Layer is organized into five functional areas:
 
-## 3. Existing Module Reuse and Changes
+- **Evidence Ingestion**: Source Collectors read configured runtime, hardware, and S-CORE state data through accessible files, commands, operating-system interfaces, or S-CORE APIs.
+- **Evidence Processing**: Schema Validator checks source records; Normalization Processor applies configured mappings; Quality Evaluator assigns evidence quality; Traceability Enricher attaches source identity, observation time, and supplied correlation information.
+- **Evidence Management**: Evidence Persistence stores normalized evidence only when persistence is configured for the deployment.
+- **Evidence Publication**: Vehicle Evidence Publisher exposes the normalized evidence contract, while VEL Health Publisher exposes the health of the VEL collection pipeline.
+- **Observability**: Collection and Audit Logging records collection, validation, normalization, and publication events without becoming part of the Vehicle Evidence contract.
 
-| Pullpiri Module | VEL Role | Change |
-| --- | --- | --- |
-| NodeAgent | Collector host, source collection, and evidence publication | Extend; no action execution |
-| MonitoringServer | Optional local metric collection utilities and monitoring conventions | Reuse selectively; not a central multi-node aggregator |
-| SettingsService | Candidate basis for evidence-query endpoints | Reuse selectively |
-| common::spec | Basis for evidence contract and schema definitions | Extend or replace with configuration-driven interface definitions |
-| logservice, common::logd | Logging path | Replace with S-CORE Logging |
-| rocksdbservice, common::etcd | Evidence persistence path when persistence is configured | Replace with S-CORE Persistency |
-| ActionController | None | Excluded from VEL execution path |
-| FilterGateway, StateManager, PolicyManager | None in initial VEL scope | Excluded; their coordination/policy responsibilities are external |
+## 3. Configuration Boundary
 
-Source collectors execute inside the NodeAgent process hosting VEL. Input definitions, output definitions, and normalization mappings are loaded as configuration, not hard-coded into separately deployed services.
+Configuration defines the source and evidence contracts:
+
+- Input Interface Definitions describe source fields, types, and requiredness.
+- Normalization Mappings describe source-to-evidence field mapping, unit conversion, state conversion, and quality rules.
+- Output Evidence Definitions describe the normalized Vehicle Evidence fields exposed to consumers.
+
+These artifacts allow a new source to be added through configuration and a platform-specific collector without changing common evidence processing behavior.
 
 ## 4. Component Responsibilities
 
-| Component | Main Function | Business Peers | Infrastructure | Deployment |
-| --- | --- | --- | --- | --- |
-| NodeAgent | Host VEL collection, normalize/publish Vehicle Evidence | S-CORE modules, designated evidence consumer | S-CORE Communication/lola where applicable | With each VEL deployment |
-| Source Collectors | Read easy metrics and S-CORE API state according to configured input definitions | OS, Runtime, S-CORE Modules | Files, commands, supported APIs | Inside VEL |
-| Interface Configuration Package | Bind input definitions, output definitions, normalization mappings, and verification vectors | NodeAgent, Source Collectors | Deployed-environment configuration mechanism | Inside VEL |
-| Input Interface Definitions | Define source input fields, types, and requiredness | Source Collectors | Configuration package | Inside VEL |
-| Output Evidence Definitions | Define normalized Vehicle Evidence output fields | NodeAgent, Vehicle Evidence Output | Configuration package | Inside VEL |
-| Normalization Mappings | Define source-to-evidence mapping, unit conversion, and quality rules | NodeAgent | Configuration package | Inside VEL |
-| Vehicle Evidence Output | Expose evidence, quality, VEL health, and collection status | Designated evidence consumer | Deployed interface mechanism | Inside VEL |
-| S-CORE Modules | Provide module states exposed by the deployed environment | NodeAgent | S-CORE APIs | External dependency |
-| S-CORE Logging | Receive VEL audit and collection logs | NodeAgent | S-CORE Logging | External dependency |
+| Component | Responsibility | Boundary |
+| --- | --- | --- |
+| Source Collectors | Read configured source data and provide source context | Platform-specific implementation; no normalization policy |
+| Schema Validator | Validate source records against input definitions | Reject or diagnose invalid source data |
+| Normalization Processor | Transform source representations into Vehicle Evidence representations | Applies configuration; does not make OEM decisions |
+| Quality Evaluator | Attach validity, freshness, completeness, and mapping quality | Describes evidence quality; does not interpret vehicle behavior |
+| Traceability Enricher | Attach source identity, observation time, and supplied correlation information | Preserves provenance of observations |
+| Evidence Persistence | Store normalized evidence when configured | Optional deployment capability |
+| Vehicle Evidence Publisher | Expose normalized Vehicle Evidence through the configured output interface | Evidence publication only |
+| VEL Health Publisher | Expose collection and processing health | VEL operational status only |
+| Collection and Audit Logging | Record operational and audit events | Separate from evidence content |
 
-## 5. Component Diagram (PlantUML)
+## 5. S-CORE Integration
 
-```plantuml
-@startuml
-title VEL Evidence Layer
+![S-CORE integration view with Vehicle Evidence Layer](../features/assets/SCORE_architecture_with_VEL.svg)
 
-package "Execution Substrate / Vehicle Runtime" {
-  [OS / Middleware]
-  [HW / Accessible Metrics]
-  [S-CORE Modules]
-}
+[PlantUML source](../features/diagrams/SCORE_architecture_with_VEL.puml)
 
-package "VEL Instance" {
-  [NodeAgent]
-  [Source Collectors]
-  [Interface Configuration Package]
-  [Input Interface Definitions]
-  [Output Evidence Definitions]
-  [Normalization Mappings]
-  [Vehicle Evidence Output]
-}
+VEL uses S-CORE services only at their applicable boundaries:
 
-package "S-CORE Existing Modules" {
-  [S-CORE Communication]
-  [S-CORE Logging]
-}
+- S-CORE Modules provide observable module state through APIs exposed by the deployed environment.
+- S-CORE Communication may be used where the applicable communication profile requires it.
+- S-CORE Logging receives VEL collection and audit logs.
+- S-CORE Persistency may provide configured evidence persistence.
 
-package "External Consumer" {
-  [Designated Evidence Consumer]
-}
+These integrations do not turn VEL into a coordinator, controller, policy manager, or decision-maker.
 
-[OS / Middleware] --> [Source Collectors] : process/runtime states
-[HW / Accessible Metrics] --> [Source Collectors] : files/commands/OS interfaces
-[S-CORE Modules] --> [Source Collectors] : module state APIs
-[Interface Configuration Package] --> [Input Interface Definitions] : input schema refs
-[Interface Configuration Package] --> [Output Evidence Definitions] : output schema refs
-[Interface Configuration Package] --> [Normalization Mappings] : mapping refs
-[Input Interface Definitions] --> [Source Collectors] : source shape/required fields
-[Normalization Mappings] --> [NodeAgent] : mappings/units/quality rules
-[Output Evidence Definitions] --> [Vehicle Evidence Output] : output evidence contract
-[Source Collectors] --> [NodeAgent] : raw evidence + context
-[NodeAgent] --> [Vehicle Evidence Output] : normalized evidence/quality/VEL health
-[NodeAgent] --> [S-CORE Logging] : audit/collection logs
-[NodeAgent] ..> [S-CORE Communication] : lola when API profile requires it
-[Vehicle Evidence Output] --> [Designated Evidence Consumer] : evidence access
+## 6. Component Relationships
 
-note right of [NodeAgent]
-No action or multi-node coordination.
-end note
-@enduml
+![Vehicle Evidence Layer component relationships](../features/assets/VEL_component_relationship.svg)
+
+[PlantUML source](../features/diagrams/VEL_component_relationship.puml)
+
+The relationship view makes the processing sequence explicit:
+
+```text
+source data
+    -> schema validation
+    -> normalization
+    -> quality evaluation
+    -> traceability enrichment
+    -> persistence and/or publication
 ```
 
-## 6. Evidence Flow (PlantUML)
-
-```plantuml
-@startuml
-title VEL Evidence Layer: Collection and Evidence Exposure
-
-actor "Designated Evidence Consumer" as Consumer
-participant "OS/HW Sources" as Source
-participant "S-CORE Modules" as ScoreModules
-participant "Source Collectors" as Collectors
-participant "Interface Configuration Package" as Config
-participant NodeAgent
-participant "S-CORE Logging" as Logging
-participant "Vehicle Evidence Output" as Output
-
-Source -> Collectors : accessible metrics/runtime states
-ScoreModules -> Collectors : module states
-Config -> Collectors : input interface definitions
-Config -> NodeAgent : normalization mappings
-Collectors -> NodeAgent : raw evidence + source/time context
-NodeAgent -> NodeAgent : normalize units/formats; attach quality/traceability
-Config -> Output : output evidence definitions
-NodeAgent -> Logging : collection and error audit logs
-NodeAgent -> Output : normalized evidence + VEL health
-Consumer -> Output : query/subscribe evidence
-Output --> Consumer : evidence response
-
-note over NodeAgent
-No lifecycle or hardware control.
-No multi-node aggregation or coordination.
-end note
-@enduml
-```
+Logging observes this flow, while configuration supplies the contracts and rules used by each processing step.
 
 ## 7. Open Design Items
 
-- Confirm the input interface definition format, output evidence definition format, and normalization mapping format with the designated data-format stakeholder.
-- Confirm the platform-specific collector interfaces and S-CORE API profiles for each deployment environment.
-- Decide whether normalized evidence persistence and specific external transports are required by each integration.
+- Confirm the input interface definition, output evidence definition, and normalization mapping formats with the responsible data-format stakeholders.
+- Confirm platform-specific collector interfaces and S-CORE API profiles for each deployment environment.
+- Decide whether normalized evidence persistence and specific external transports are required for each integration.

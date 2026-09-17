@@ -8,6 +8,11 @@ Vehicle Evidence
 
 The normalized, traceable output that VEL produces from collected source data. Vehicle Evidence includes the observed value or state, source identity, observation time, and (when supplied) a correlation identifier.
 
+Vehicle Evidence Layer (VEL)
+-----------------------------
+
+The canonical name of the product. VEL is an Evidence Layer that collects, normalizes, and exposes Vehicle Evidence to designated consumers.
+
 Evidence Layer
 ---------------
 
@@ -63,10 +68,10 @@ S-CORE Module
 
 A module of the S-CORE platform whose state can be observed and collected by VEL as a source, through S-CORE APIs exposed by the deployed environment.
 
-NodeAgent
-----------
+Evidence Runtime
+-----------------
 
-The Pullpiri-derived component reused as the collector host for VEL. It hosts Source Collectors and publishes normalized Vehicle Evidence; it does not execute lifecycle, process, container, or hardware actions.
+The deployment-specific host for VEL components (for example, Pullpiri's NodeAgent). It may host Source Collectors, Evidence Processing, and publication components, but it is not a VEL product boundary and does not execute lifecycle, process, container, or hardware actions.
 
 Baseline
 --------
