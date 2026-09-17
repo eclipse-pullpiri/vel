@@ -1,0 +1,20 @@
+@startuml
+title Vehicle Evidence Content Matrix
+
+salt
+{
+  {T
+  + Source category | Input interface definition | Normalization mapping | Evidence output
+  ++ Runtime metrics | field/type/requiredness | unit and representation | source identity and observation time
+  ++ Hardware metrics | field/type/requiredness | unit and representation | source identity and observation time
+  ++ S-CORE module states | field/type/requiredness | state representation | source identity and observation time
+  }
+  --
+  {T
+  + Cross-cutting content | Result
+  ++ Quality information | evidence quality
+  ++ Collection status | VEL health
+  ++ Source context correlation | correlation identifier when supplied
+  }
+}
+@enduml

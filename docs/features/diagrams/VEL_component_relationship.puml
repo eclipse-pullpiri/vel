@@ -1,0 +1,24 @@
+@startuml
+title VEL Component Relationships
+
+component "NodeAgent" as nodeagent
+component "Source Collectors" as collectors
+component "Interface Configuration Package" as package
+component "Input Interface Definitions" as input
+component "Output Evidence Definitions" as output
+component "Normalization Mappings" as mappings
+component "Vehicle Evidence Output" as evidence_output
+component "S-CORE Communication" as communication
+component "S-CORE Logging" as logging
+
+package --> input
+package --> output
+package --> mappings
+input --> collectors : source shape
+collectors --> nodeagent : raw records
+mappings --> nodeagent : mapping rules
+nodeagent --> evidence_output : normalized evidence
+nodeagent --> logging : audit logs
+nodeagent ..> communication : when applicable
+output --> evidence_output : output contract
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+title S-CORE Integration View with VEL
+
+package "S-CORE" {
+  [S-CORE Modules]
+  [S-CORE Communication]
+  [S-CORE Logging]
+  [S-CORE Persistency]
+}
+
+package "VEL" {
+  [Source Collectors]
+  [NodeAgent]
+  [Vehicle Evidence Output]
+}
+
+[NodeAgent] --> [S-CORE Logging] : collection/audit logs
+[NodeAgent] ..> [S-CORE Communication] : applicable communication profile
+[S-CORE Modules] --> [Source Collectors] : exposed module states
+[Source Collectors] --> [NodeAgent] : collected records
+[NodeAgent] ..> [S-CORE Persistency] : configured evidence persistence
+[NodeAgent] --> [Vehicle Evidence Output] : normalized evidence
+
+note bottom of [Vehicle Evidence Output]
+VEL exposes evidence only.
+No control or final OEM decisions.
+end note
+@enduml

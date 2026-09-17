@@ -1,0 +1,40 @@
+@startuml
+title VEL Evidence Layer Architecture
+
+package "Evidence Sources" {
+  [OS / Middleware]
+  [HW Metrics]
+  [S-CORE Modules]
+}
+
+package "VEL" {
+  [Source Collectors]
+  [NodeAgent]
+  [Vehicle Evidence Output]
+}
+
+package "Configuration" {
+  [Input Interface Definitions]
+  [Output Evidence Definitions]
+  [Normalization Mappings]
+}
+
+package "External" {
+  [Designated Evidence Consumer]
+}
+
+[OS / Middleware] --> [Source Collectors] : runtime states
+[HW Metrics] --> [Source Collectors] : accessible metrics
+[S-CORE Modules] --> [Source Collectors] : module states
+[Input Interface Definitions] --> [Source Collectors]
+[Source Collectors] --> [NodeAgent] : source records
+[Normalization Mappings] --> [NodeAgent]
+[NodeAgent] --> [Vehicle Evidence Output] : normalized evidence
+[Output Evidence Definitions] --> [Vehicle Evidence Output]
+[Vehicle Evidence Output] --> [Designated Evidence Consumer]
+
+note right of [NodeAgent]
+Collection, normalization,
+quality, and VEL health
+end note
+@enduml
