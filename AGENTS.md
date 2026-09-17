@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file gives AI coding agents (regardless of vendor or tool) the context needed to work on VEL correctly. It summarizes the same rules found in `.github/copilot-instructions.md`; keep both in sync when either changes.
+This file is the authoritative, tool-neutral context for AI coding agents working on VEL. Tool-specific instruction files shall point to this file instead of duplicating its rules.
 
 ## Product Scope
 
