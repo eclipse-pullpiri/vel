@@ -1,0 +1,36 @@
+name: Bug Report
+description: Report a bug in VEL
+title: "[BUG] "
+labels: ["type:bug", "status:backlog"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 Bug Description
+      description: What happened, and what did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 🔁 Steps to Reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 🖥️ Environment
+      description: VEL version/commit, deployment environment, OS, etc.
+    validations:
+      required: false
+  - type: textarea
+    id: impact
+    attributes:
+      label: ⚠️ Impact/Risk
+      description: Scope of impact and severity
+    validations:
+      required: false

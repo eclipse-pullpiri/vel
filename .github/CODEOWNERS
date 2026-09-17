@@ -1,0 +1,25 @@
+# CODEOWNERS
+#
+# This file defines default reviewers for pull requests. Replace the
+# placeholders below with actual GitHub usernames or teams before relying on
+# automatic review requests (see docs/contribution/branch_management_eng.md
+# section 6 for reviewer/approval rules).
+#
+# Order matters: the last matching pattern in the file takes precedence.
+
+# Default owners for everything in the repository.
+* @VEL-maintainers
+
+# Requirements and architecture documents.
+/docs/en/requirements_eng.rst   @VEL-maintainers
+/docs/ko/requirements_kor.rst   @VEL-maintainers
+/docs/score/requirements_score.rst @VEL-maintainers
+/docs/en/vel_architectural_design_draft_eng.md @VEL-maintainers
+/docs/ko/vel_architectural_design_draft_kor.md @VEL-maintainers
+
+# Contribution process and governance documents.
+/docs/contribution/ @VEL-maintainers
+/.github/           @VEL-maintainers
+
+# Interface packages.
+/interfaces/ @VEL-maintainers

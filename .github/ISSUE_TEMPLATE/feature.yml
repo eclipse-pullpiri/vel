@@ -1,0 +1,51 @@
+name: Requirement
+description: New feature requirement
+title: "[FEATURE] "
+labels: ["type:requirement", "status:backlog"]
+body:
+  - type: input
+    id: epic
+    attributes:
+      label: 🔗 Related Epic
+      description: Parent epic issue number
+      placeholder: "Relates to #"
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 Requirement Description
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 📋 Acceptance Criteria
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: 📎 Related Documents/References
+    validations:
+      required: false
+  - type: textarea
+    id: subtasks
+    attributes:
+      label: 📌 Subtasks
+      description: Linked TASK issues (updated as they are created)
+    validations:
+      required: false
+  - type: textarea
+    id: testing-plan
+    attributes:
+      label: 🧪 Testing Plan
+      placeholder: |
+        - [ ] Unit Test:
+        - [ ] Integration Test:
+        - [ ] Performance Test:
+    validations:
+      required: false
