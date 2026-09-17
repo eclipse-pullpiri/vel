@@ -11,7 +11,7 @@ This file is the authoritative, tool-neutral context for AI coding agents workin
 
 ## Architecture
 
-- Reuse Pullpiri modules only where they fit the VEL scope. NodeAgent is the collector host; ActionController, FilterGateway, StateManager, and PolicyManager are outside the active VEL execution path unless a later scope decision explicitly changes this.
+- Reuse existing modules only where they fit the VEL scope. An Evidence Runtime may host VEL components (for example, Pullpiri's NodeAgent); ActionController, FilterGateway, StateManager, and PolicyManager are outside the active VEL execution path unless a later scope decision explicitly changes this.
 - Use S-CORE Logging instead of Pullpiri logservice/common::logd.
 - Use S-CORE Persistency instead of Pullpiri rocksdbservice/common::etcd when persistence is configured.
 - Use S-CORE Communication and its applicable profile for S-CORE communication. Do not describe the communication library as a business communication target.
