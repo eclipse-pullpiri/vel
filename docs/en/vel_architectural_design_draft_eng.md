@@ -80,7 +80,17 @@ source data
 
 Logging observes this flow, while configuration supplies the contracts and rules used by each processing step.
 
-## 7. Open Design Items
+## 7. Evidence Content Map
+
+![Vehicle Evidence content map](../features/assets/VEL_evidence_state_matrix.svg)
+
+[PlantUML source](../features/diagrams/VEL_evidence_state_matrix.puml)
+
+This map explains why different source categories require different processing rules. Runtime metrics are primarily unit- and range-oriented; hardware data may represent a measurement or an operational state; S-CORE data is commonly state-based; events and faults require code and severity handling; and execution context supplies identity and correlation information. The output is always normalized Vehicle Evidence with the applicable quality and traceability metadata.
+
+The lower part of the map separates cross-cutting output from source-specific transformation: evidence quality describes the observation, VEL Health describes the VEL pipeline, and publication exposes the normalized output through the configured interface.
+
+## 8. Open Design Items
 
 - Confirm the input interface definition, output evidence definition, and normalization mapping formats with the responsible data-format stakeholders.
 - Confirm platform-specific collector interfaces and S-CORE API profiles for each deployment environment.

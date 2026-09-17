@@ -80,7 +80,17 @@ source data
 
 Logging은 이 흐름을 관찰하고, configuration은 각 처리 단계가 사용하는 contract와 rule을 제공한다.
 
-## 7. 미결 설계 항목
+## 7. Evidence Content Map
+
+![Vehicle Evidence content map](../features/assets/VEL_evidence_state_matrix.svg)
+
+[PlantUML 원본](../features/diagrams/VEL_evidence_state_matrix.puml)
+
+이 map은 source category마다 처리 규칙이 달라지는 이유를 설명한다. Runtime metric은 주로 unit과 range를 처리하고, hardware data는 measurement 또는 operational state를 나타낼 수 있다. S-CORE data는 state 기반으로 처리되며, event와 fault는 code 및 severity 처리가 필요하다. Execution context는 identity와 correlation 정보를 제공한다. 출력은 항상 적용 가능한 quality 및 traceability metadata가 포함된 normalized Vehicle Evidence다.
+
+map의 하단은 source별 변환과 cross-cutting output을 구분한다. Evidence quality는 관측값의 품질을 설명하고, VEL Health는 VEL pipeline의 상태를 설명하며, publication은 구성된 interface를 통해 normalized output을 노출한다.
+
+## 8. 미결 설계 항목
 
 - 담당 data-format 이해관계자와 input interface definition, output evidence definition 및 normalization mapping format 확정
 - 각 배포 환경의 platform-specific collector interface 및 S-CORE API profile 확인
