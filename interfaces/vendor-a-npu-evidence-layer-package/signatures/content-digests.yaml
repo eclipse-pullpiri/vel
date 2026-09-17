@@ -1,0 +1,17 @@
+algorithm: sha256
+generatedFor: vendor-a-npu-evidence-layer-package-1.0.0
+artifacts:
+  - path: README.md
+    digest: 8dae38c3f47193e1adfda69002ee73bbfaa62f407ab9eaa47a9b4304c757ccaa
+  - path: collectors/npu-runtime-collector.yaml
+    digest: d5e4b4d86cc063884ba69067a9950c8f4f8c20ef51d2427fe71f973617ac0aee
+  - path: manifest.yaml
+    digest: 9182dde18e6775e43e77f297521aadd449a0b0d4fb182077a58ef1b7952390a9
+  - path: mappings/vendor-a-npu-to-evidence-v3.1.0.yaml
+    digest: 2bb2492c3a1259ce59be79a21ea691196efc497c944f93de7f6da01799b8b488
+  - path: schemas/score-normalized-evidence-v1.0.0.yaml
+    digest: 526e529b47ff2825c1a7223ef27979c381eefaf61e7c1d0fc2d235ff9fd4f164
+  - path: schemas/vendor-a-npu-status-v1.2.0.yaml
+    digest: 7d484d1a2da8e0b2576929623a93022c3746876d904350be5d0356f5a6d57965
+  - path: tests/normalization-vectors.yaml
+    digest: 50622d809381cc991cc3ec1b67ffa4d398a49d922c8998fdd50d9a80bb15cdae
