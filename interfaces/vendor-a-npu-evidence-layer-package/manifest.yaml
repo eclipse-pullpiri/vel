@@ -8,6 +8,8 @@ spec:
   primaryLayer: evidence
   collectorConfig: collectors/npu-runtime-collector.yaml
   artifacts:
+    - {path: README.md, role: documentation}
+    - {path: collectors/npu-runtime-collector.yaml, role: collector-config}
     - {path: schemas/vendor-a-npu-status-v1.2.0.yaml, role: input-schema}
     - {path: mappings/vendor-a-npu-to-evidence-v3.1.0.yaml, role: normalization-rule}
     - {path: schemas/score-normalized-evidence-v1.0.0.yaml, role: output-schema}
