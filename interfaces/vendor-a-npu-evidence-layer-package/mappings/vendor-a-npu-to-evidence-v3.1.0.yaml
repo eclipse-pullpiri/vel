@@ -10,6 +10,8 @@ spec:
   defaults:
     evidenceDomain: accelerator
     quality: {validity: valid, freshness: current, completeness: complete, mappingQuality: exact}
+    time: {clockDomain: monotonic}
+    traceability: {inputSchemaVersion: "1.2.0", normalizationRuleVersion: "3.1.0"}
   commonMappings:
     - {sourcePath: $.source_id, targetPath: $.identity.sourceId, required: true}
     - {sourcePath: $.workload_id, targetPath: $.identity.workloadId, required: true}

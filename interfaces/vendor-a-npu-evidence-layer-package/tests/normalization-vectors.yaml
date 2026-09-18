@@ -38,6 +38,29 @@ tests:
         normalizedClass: unmapped
         originalValue: "0xFFFF"
         mappingQuality: unmapped
+  - name: records-carry-traceability-and-quality
+    input:
+      message_id: npu-status-19385
+      source_id: npu-runtime-0
+      workload_id: perception-front
+      execution_id: exec-8045
+      resource_id: npu-0
+      timestamp_ns: 1984217735000
+      inference_latency_us: 41000
+      device_state: 1
+    expect:
+      contains:
+        evidenceType: workload.execution.latency
+        value: 41.0
+        unit: ms
+        clockDomain: monotonic
+        validity: valid
+        freshness: current
+        completeness: complete
+        mappingQuality: exact
+        inputSchemaVersion: "1.2.0"
+        normalizationRuleVersion: "3.1.0"
+        sourceMessageId: npu-status-19385
   - name: missing-required-field-is-rejected
     input:
       message_id: npu-status-19384
