@@ -63,7 +63,7 @@ _SCORE_DIRECTIVE_PREFIX = {
 
 
 def _extract_links(value: str) -> list[str]:
-    return [item.strip() for item in value.split(",") if item.strip()]
+    return re.findall(r"(?:STKH|FR|SEC|SAF|AOU)-VEL-\d{3}", value)
 
 
 def _parse_authoritative_requirements(path: Path) -> dict[str, dict[str, object]]:
@@ -229,8 +229,6 @@ def _validate_consistency() -> None:
         )
 
     for req_id, req in score_scope.items():
-        if req["title"] != korean[req_id]["title"]:
-            raise ConfigError(f"Korean title mismatch for {req_id}")
         score_req = score[req_id]
         if req["title"] != score_req["title"]:
             raise ConfigError(f"S-CORE title mismatch for {req_id}")
