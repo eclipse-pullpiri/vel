@@ -270,9 +270,9 @@ def _validate_consistency() -> None:
         score_req = score[req_id]
         if req["title"] != score_req["title"]:
             raise ConfigError(f"S-CORE title mismatch for {req_id}")
-        if req["category"] in {"STKH", "FR"} and req["links"] != korean[req_id]["links"]:
+        if req["category"] in {"STKH", "FR"} and sorted(req["links"]) != sorted(korean[req_id]["links"]):
             raise ConfigError(f"Korean traceability mismatch for {req_id}")
-        if req["category"] == "FR" and req["links"] != score_req["links"]:
+        if req["category"] == "FR" and sorted(req["links"]) != sorted(score_req["links"]):
             raise ConfigError(f"S-CORE traceability mismatch for {req_id}")
 
 
