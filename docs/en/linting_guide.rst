@@ -14,6 +14,7 @@ Mandatory Checks
 - ``sphinx-build -W -b html docs docs/_build/html`` shall complete without warnings or errors.
 - The Sphinx build shall fail when requirement IDs are duplicated, placed in the wrong requirement class, or use invalid ``STKH-VEL-*``, ``FR-VEL-*``, ``SEC-VEL-*``, or ``SAF-VEL-*`` formats.
 - The Sphinx build shall fail when stakeholder-to-feature traceability is missing, inconsistent, or drifts between the English, Korean, and S-CORE requirements documents.
+- The S-CORE Sphinx-Needs view shall preserve the same requirement titles and feature traceability as the authoritative English requirements for matching IDs.
 
 2. Atomicity
 

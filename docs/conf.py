@@ -237,6 +237,8 @@ def _validate_consistency() -> None:
 
     for req_id, req in score_scope.items():
         score_req = score[req_id]
+        if req["title"] != score_req["title"]:
+            raise ConfigError(f"S-CORE title mismatch for {req_id}")
         if req["links"] != korean[req_id]["links"]:
             raise ConfigError(f"Korean traceability mismatch for {req_id}")
         if req["category"] == "FR" and req["links"] != score_req["links"]:

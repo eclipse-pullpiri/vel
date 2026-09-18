@@ -14,6 +14,7 @@
 - ``sphinx-build -W -b html docs docs/_build/html``\ 은 warning과 error 없이 완료되어야 한다.
 - Sphinx build는 요구사항 ID가 중복되거나, 잘못된 요구사항 분류에 위치하거나, ``STKH-VEL-*``, ``FR-VEL-*``, ``SEC-VEL-*``, ``SAF-VEL-*`` 형식을 따르지 않으면 실패해야 한다.
 - Sphinx build는 이해관계자-기능 요구사항 추적성이 누락되거나, 상호 불일치하거나, 영문/국문/S-CORE 요구사항 문서 사이에서 드리프트가 발생하면 실패해야 한다.
+- S-CORE Sphinx-Needs view는 동일한 ID에 대해 authoritative 영문 요구사항과 같은 요구사항 제목 및 기능 추적성을 유지해야 한다.
 
 2. Atomicity
 
