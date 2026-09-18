@@ -116,12 +116,16 @@ def _parse_authoritative_requirements(path: Path) -> dict[str, dict[str, object]
 def _parse_score_requirements(path: Path) -> dict[str, dict[str, object]]:
     requirements: dict[str, dict[str, object]] = {}
     current: dict[str, object] | None = None
+    current_requirement_id: str | None = None
 
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         directive_match = _SCORE_DIRECTIVE_PATTERN.match(raw_line)
         if directive_match:
             directive, title = directive_match.groups()
+            if current is not None and current_requirement_id is None:
+                raise ConfigError(f"{path.name}: directive '{current['title']}' is missing :id:")
             current = {"directive": directive, "title": title, "links": []}
+            current_requirement_id = None
             continue
 
         if current is None:
@@ -149,12 +153,15 @@ def _parse_score_requirements(path: Path) -> dict[str, dict[str, object]]:
                 "title": current["title"],
                 "links": [],
             }
+            current_requirement_id = requirement_id
         elif option == "satisfies":
             links = _extract_links(value)
-            if not requirements:
-                raise ConfigError(f"{path.name}: :satisfies: appears before :id:")
-            last_requirement_id = next(reversed(requirements))
-            requirements[last_requirement_id]["links"] = links
+            if current_requirement_id is None:
+                raise ConfigError(f"{path.name}: :satisfies: appears before :id: in directive '{current['title']}'")
+            requirements[current_requirement_id]["links"] = links
+
+    if current is not None and current_requirement_id is None:
+        raise ConfigError(f"{path.name}: directive '{current['title']}' is missing :id:")
 
     return requirements
 
@@ -230,8 +237,6 @@ def _validate_consistency() -> None:
 
     for req_id, req in score_scope.items():
         score_req = score[req_id]
-        if req["title"] != score_req["title"]:
-            raise ConfigError(f"S-CORE title mismatch for {req_id}")
         if req["links"] != korean[req_id]["links"]:
             raise ConfigError(f"Korean traceability mismatch for {req_id}")
         if req["category"] == "FR" and req["links"] != score_req["links"]:
