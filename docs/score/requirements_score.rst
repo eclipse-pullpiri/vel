@@ -18,6 +18,11 @@ Stakeholder Requirements
 
    The platform shall collect configured runtime and hardware metrics.
 
+.. stkh_req:: Accessible Metric Source Mechanism
+   :id: stkh_req__vel__accessible_metric_source
+
+   The platform shall use accessible source mechanisms for metric collection.
+
 .. stkh_req:: S-CORE Module State Collection
    :id: stkh_req__vel__score_state_collection
 
@@ -28,10 +33,20 @@ Stakeholder Requirements
 
    The platform shall normalize source-specific data representations.
 
-.. stkh_req:: Evidence Traceability
-   :id: stkh_req__vel__evidence_traceability
+.. stkh_req:: Source Identity Traceability
+   :id: stkh_req__vel__source_identity_traceability
 
-   The platform shall preserve source identity, observation time, and supplied correlation information for collected evidence.
+   The platform shall preserve source identity for collected evidence.
+
+.. stkh_req:: Observation Time Traceability
+   :id: stkh_req__vel__observation_time_traceability
+
+   The platform shall preserve observation time for collected evidence.
+
+.. stkh_req:: Correlation Traceability
+   :id: stkh_req__vel__correlation_traceability
+
+   The platform shall preserve correlation information when source context provides it.
 
 .. stkh_req:: Evidence Quality
    :id: stkh_req__vel__evidence_quality
@@ -48,10 +63,20 @@ Stakeholder Requirements
 
    The platform shall expose normalized evidence to designated consumers.
 
-.. stkh_req:: Configuration-Driven Interfaces
-   :id: stkh_req__vel__configuration_interfaces
+.. stkh_req:: Input Interface Configuration
+   :id: stkh_req__vel__input_interface_configuration
 
-   The platform shall define input interfaces, output evidence interfaces, and normalization mappings through configuration.
+   The platform shall define source input interfaces through configuration.
+
+.. stkh_req:: Output Evidence Interface Configuration
+   :id: stkh_req__vel__output_interface_configuration
+
+   The platform shall define normalized evidence output interfaces through configuration.
+
+.. stkh_req:: Normalization Mapping Configuration
+   :id: stkh_req__vel__normalization_mapping_configuration
+
+   The platform shall define source-to-evidence normalization mappings through configuration.
 
 .. stkh_req:: Platform Collector Separation
    :id: stkh_req__vel__collector_separation
@@ -74,7 +99,7 @@ Feature Requirements
 
 .. feat_req:: Accessible Metric Source Mechanism
    :id: feat_req__vel__accessible_metric_source
-   :satisfies: stkh_req__vel__metric_collection
+   :satisfies: stkh_req__vel__accessible_metric_source
 
    The system shall collect metric data through files, commands, or supported operating-system interfaces.
 
@@ -98,19 +123,19 @@ Feature Requirements
 
 .. feat_req:: Source Identity Metadata
    :id: feat_req__vel__source_identity
-   :satisfies: stkh_req__vel__evidence_traceability
+   :satisfies: stkh_req__vel__source_identity_traceability
 
    The system shall include source identity in each evidence record.
 
 .. feat_req:: Observation Time Metadata
    :id: feat_req__vel__observation_time
-   :satisfies: stkh_req__vel__evidence_traceability
+   :satisfies: stkh_req__vel__observation_time_traceability
 
    The system shall include observation timestamp in each evidence record.
 
 .. feat_req:: Correlation Metadata
    :id: feat_req__vel__correlation
-   :satisfies: stkh_req__vel__evidence_traceability
+   :satisfies: stkh_req__vel__correlation_traceability
 
    The system shall include a correlation identifier when source context provides it.
 
@@ -140,19 +165,19 @@ Feature Requirements
 
 .. feat_req:: Input Interface Configuration
    :id: feat_req__vel__input_interface_configuration
-   :satisfies: stkh_req__vel__configuration_interfaces
+   :satisfies: stkh_req__vel__input_interface_configuration
 
    The system shall load source input interface definitions from configuration.
 
 .. feat_req:: Output Evidence Interface Configuration
    :id: feat_req__vel__output_interface_configuration
-   :satisfies: stkh_req__vel__configuration_interfaces
+   :satisfies: stkh_req__vel__output_interface_configuration
 
    The system shall load normalized evidence output interface definitions from configuration.
 
 .. feat_req:: Normalization Mapping Configuration
    :id: feat_req__vel__normalization_mapping_configuration
-   :satisfies: stkh_req__vel__configuration_interfaces
+   :satisfies: stkh_req__vel__normalization_mapping_configuration
 
    The system shall load source-to-evidence normalization mapping rules from configuration.
 
