@@ -57,5 +57,5 @@
 .. code-block:: bash
 
    python -m pip install -r docs/requirements.txt
-   rm -rf docs/_build
+   python -c "from pathlib import Path; import shutil; shutil.rmtree(Path('docs/_build'), ignore_errors=True)"
    sphinx-build -W -b html docs docs/_build/html

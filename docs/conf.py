@@ -40,6 +40,8 @@ needs_extra_links = [
 
 _DOC_PATH = Path(__file__).parent
 _DOC_ID_PATTERN = re.compile(r"^((?:STKH|FR|SEC|SAF|AOU)-VEL-\d{3})(?::\s+(.*))?$")
+_DOC_FIELD_ID_PATTERN = re.compile(r"^(?:ID|Id):\s*((?:STKH|FR|SEC|SAF|AOU)-VEL-\d{3})$")
+_DOC_FIELD_TITLE_PATTERN = re.compile(r"^(?:Title|제목):\s+(.*)$")
 _SCORE_DIRECTIVE_PATTERN = re.compile(r"^\.\.\s+(stkh_req|feat_req|sec_req|saf_req)::\s+(.*)$")
 _SCORE_OPTION_PATTERN = re.compile(r"^\s+:(id|satisfies):\s+(.*)$")
 _SECTION_RULES = {
@@ -80,35 +82,64 @@ def _parse_authoritative_requirements(path: Path) -> dict[str, dict[str, object]
             current_id = None
             continue
 
-        id_match = _DOC_ID_PATTERN.match(line)
-        if not id_match:
-            if current_id and current_section:
-                _, trace_label = _SECTION_RULES[current_section]
-                if trace_label and line.startswith(f"{trace_label}:"):
-                    requirements[current_id]["links"] = _extract_links(line.split(":", 1)[1].strip())
-                    current_id = None
+        field_id_match = _DOC_FIELD_ID_PATTERN.match(line)
+        if field_id_match:
+            requirement_id = field_id_match.group(1)
+            prefix = requirement_id.split("-", 1)[0]
+            if requirement_id in seen_ids:
+                raise ConfigError(f"{path.name}: duplicate requirement ID {requirement_id}")
+            if not current_section:
+                raise ConfigError(f"{path.name}: requirement {requirement_id} is outside a recognized section")
+
+            expected_prefix, _ = _SECTION_RULES[current_section]
+            if prefix != expected_prefix:
+                raise ConfigError(
+                    f"{path.name}: requirement {requirement_id} appears in '{current_section}' but uses prefix {prefix}"
+                )
+
+            seen_ids.add(requirement_id)
+            requirements[requirement_id] = {
+                "category": prefix,
+                "title": "",
+                "links": [],
+            }
+            current_id = requirement_id
             continue
 
-        requirement_id, title = id_match.groups()
-        prefix = requirement_id.split("-", 1)[0]
-        if requirement_id in seen_ids:
-            raise ConfigError(f"{path.name}: duplicate requirement ID {requirement_id}")
-        if not current_section:
-            raise ConfigError(f"{path.name}: requirement {requirement_id} is outside a recognized section")
+        id_match = _DOC_ID_PATTERN.match(line)
+        if id_match:
+            requirement_id, title = id_match.groups()
+            prefix = requirement_id.split("-", 1)[0]
+            if requirement_id in seen_ids:
+                raise ConfigError(f"{path.name}: duplicate requirement ID {requirement_id}")
+            if not current_section:
+                raise ConfigError(f"{path.name}: requirement {requirement_id} is outside a recognized section")
 
-        expected_prefix, _ = _SECTION_RULES[current_section]
-        if prefix != expected_prefix:
-            raise ConfigError(
-                f"{path.name}: requirement {requirement_id} appears in '{current_section}' but uses prefix {prefix}"
-            )
+            expected_prefix, _ = _SECTION_RULES[current_section]
+            if prefix != expected_prefix:
+                raise ConfigError(
+                    f"{path.name}: requirement {requirement_id} appears in '{current_section}' but uses prefix {prefix}"
+                )
 
-        seen_ids.add(requirement_id)
-        requirements[requirement_id] = {
-            "category": prefix,
-            "title": title or "",
-            "links": [],
-        }
-        current_id = requirement_id
+            seen_ids.add(requirement_id)
+            requirements[requirement_id] = {
+                "category": prefix,
+                "title": title or "",
+                "links": [],
+            }
+            current_id = requirement_id
+            continue
+
+        title_match = _DOC_FIELD_TITLE_PATTERN.match(line)
+        if title_match and current_id:
+            requirements[current_id]["title"] = title_match.group(1).strip()
+            continue
+
+        if current_id and current_section:
+            _, trace_label = _SECTION_RULES[current_section]
+            if trace_label and line.startswith(f"{trace_label}:"):
+                requirements[current_id]["links"] = _extract_links(line.split(":", 1)[1].strip())
+                current_id = None
 
     return requirements
 
@@ -236,8 +267,6 @@ def _validate_consistency() -> None:
         )
 
     for req_id, req in score_scope.items():
-        if req["title"] != korean[req_id]["title"]:
-            raise ConfigError(f"Korean title mismatch for {req_id}")
         score_req = score[req_id]
         if req["title"] != score_req["title"]:
             raise ConfigError(f"S-CORE title mismatch for {req_id}")
