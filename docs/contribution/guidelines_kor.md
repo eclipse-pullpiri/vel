@@ -51,7 +51,7 @@ EPIC
 name: Epic
 about: 관련 요구사항을 묶는 대규모 이니셔티브
 title: '[EPIC] '
-labels: epic, status:backlog
+labels: type:epic, status:backlog
 assignees: ''
 ---
 
@@ -78,7 +78,7 @@ assignees: ''
 name: 요구사항
 about: 새로운 기능 요구사항
 title: '[FEATURE] '
-labels: requirement, status:backlog
+labels: type:requirement, status:backlog
 assignees: ''
 ---
 
@@ -114,7 +114,7 @@ Relates to #
 name: 개발 작업
 about: 구현해야 할 개발 작업
 title: '[TASK] '
-labels: task, status:todo
+labels: type:task, status:todo
 assignees: ''
 ---
 
@@ -239,6 +239,8 @@ Closes #
 - [ ] 코드 컨벤션을 준수했습니다
 - [ ] 테스트를 추가/수정했습니다
 - [ ] 문서를 업데이트했습니다 (필요한 경우)
+- [ ] `sphinx-build -W -b html docs docs/_build/html` 경고 없이 통과했습니다 (`docs/` 변경 시)
+- [ ] 요구사항/아키텍처/기여 문서 변경 시 영문과 국문 문서를 함께 반영했습니다
 ```
 
 ---

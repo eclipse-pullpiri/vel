@@ -32,3 +32,10 @@ body:
       label: 📎 Related Documents/References
     validations:
       required: false
+  - type: textarea
+    id: progress-summary
+    attributes:
+      label: 📊 Progress Summary
+      description: Progress notes updated as related FEATURE issues are completed
+    validations:
+      required: false

@@ -49,3 +49,10 @@ body:
         - [ ] Performance Test:
     validations:
       required: false
+  - type: textarea
+    id: test-results
+    attributes:
+      label: 📊 Test Results
+      description: Record the verification result before closing the issue
+    validations:
+      required: false

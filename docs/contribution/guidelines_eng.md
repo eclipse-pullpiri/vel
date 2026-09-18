@@ -51,7 +51,7 @@ Example:
 name: Epic
 about: Large initiative that groups related feature requirements
 title: '[EPIC] '
-labels: epic, status:backlog
+labels: type:epic, status:backlog
 assignees: ''
 ---
 
@@ -78,7 +78,7 @@ assignees: ''
 name: Requirement
 about: New feature requirement
 title: '[FEATURE] '
-labels: requirement, status:backlog
+labels: type:requirement, status:backlog
 assignees: ''
 ---
 
@@ -114,7 +114,7 @@ Relates to #
 name: Development Task
 about: Development task to be implemented
 title: '[TASK] '
-labels: task, status:todo
+labels: type:task, status:todo
 assignees: ''
 ---
 
@@ -244,6 +244,8 @@ Closes #
 - [ ] Code conventions are followed
 - [ ] Tests are added/modified
 - [ ] Documentation is updated (if necessary)
+- [ ] `sphinx-build -W -b html docs docs/_build/html` passes with no warnings (if `docs/` changed)
+- [ ] English and Korean documentation are kept in sync (if requirements/architecture/contribution docs changed)
 ```
 
 ---
