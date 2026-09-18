@@ -68,6 +68,10 @@ def _extract_links(value: str) -> list[str]:
     return re.findall(r"(?:STKH|FR|SEC|SAF|AOU)-VEL-\d{3}", value)
 
 
+def _uses_ascii_title(title: str) -> bool:
+    return title.isascii()
+
+
 def _parse_authoritative_requirements(path: Path) -> dict[str, dict[str, object]]:
     requirements: dict[str, dict[str, object]] = {}
     seen_ids: set[str] = set()
@@ -267,10 +271,13 @@ def _validate_consistency() -> None:
         )
 
     for req_id, req in score_scope.items():
+        korean_req = korean[req_id]
+        if _uses_ascii_title(req["title"]) and _uses_ascii_title(korean_req["title"]) and req["title"] != korean_req["title"]:
+            raise ConfigError(f"Korean title mismatch for {req_id}")
         score_req = score[req_id]
         if req["title"] != score_req["title"]:
             raise ConfigError(f"S-CORE title mismatch for {req_id}")
-        if req["category"] in {"STKH", "FR"} and sorted(req["links"]) != sorted(korean[req_id]["links"]):
+        if req["category"] in {"STKH", "FR"} and sorted(req["links"]) != sorted(korean_req["links"]):
             raise ConfigError(f"Korean traceability mismatch for {req_id}")
         if req["category"] == "FR" and sorted(req["links"]) != sorted(score_req["links"]):
             raise ConfigError(f"S-CORE traceability mismatch for {req_id}")
