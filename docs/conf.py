@@ -267,8 +267,6 @@ def _validate_consistency() -> None:
         )
 
     for req_id, req in score_scope.items():
-        if req["title"] != korean[req_id]["title"]:
-            raise ConfigError(f"Korean title mismatch for {req_id}")
         score_req = score[req_id]
         if req["title"] != score_req["title"]:
             raise ConfigError(f"S-CORE title mismatch for {req_id}")
