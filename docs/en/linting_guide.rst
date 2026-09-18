@@ -12,6 +12,8 @@ Mandatory Checks
 1. Build integrity
 
 - ``sphinx-build -W -b html docs docs/_build/html`` shall complete without warnings or errors.
+- The Sphinx build shall fail when requirement IDs are duplicated, placed in the wrong requirement class, or use invalid ``STKH-VEL-*``, ``FR-VEL-*``, ``SEC-VEL-*``, or ``SAF-VEL-*`` formats.
+- The Sphinx build shall fail when stakeholder-to-feature traceability is missing, inconsistent, or drifts between the English, Korean, and S-CORE requirements documents.
 
 2. Atomicity
 
@@ -54,4 +56,5 @@ Recommended Commands
 .. code-block:: bash
 
    python -m pip install -r docs/requirements.txt
+   rm -rf docs/_build
    sphinx-build -W -b html docs docs/_build/html
