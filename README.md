@@ -16,6 +16,7 @@ The Vehicle Evidence Layer supplies the necessary evidence to OEM layers for man
 
 - [Contributing guide](.github/CONTRIBUTING.md)
 - [Contribution workflow guide](docs/contribution/guidelines_eng.md)
-- [AI agent instructions](AGENTS.md)
+- [Tool-neutral AI project context](AGENTS.md)
+- [GitHub Copilot repository instructions](.github/copilot-instructions.md)
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 - [Security Policy](.github/SECURITY.md)
